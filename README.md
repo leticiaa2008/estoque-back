@@ -1577,3 +1577,6 @@ COLE_AQUI_A_URL_DO_BACKEND_NA_VERCEL
 ```
 
 e coloque a URL que a Vercel fornecer.
+
+# Site pronto e hospedado na vercel
+https://estoque-back-pk7lamyws-leticiaa2008s-projects.vercel.app/
