@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle de Estoque & Arquivo Morto</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Biblioteca de Leitura de QR Code -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <!-- Biblioteca de Geração de QR Code -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    @media print {
+      body * { visibility: hidden; }
+      #printable-area, #printable-area * { visibility: visible; }
+      #printable-area { position: absolute; left: 0; top: 0; width: 100%; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <i class="fa-solid fa-boxes-packing text-2xl"></i>
+        <h1 class="font-bold text-lg md:text-xl tracking-wide">Estoque & Arquivo Morto</h1>
+      </div>
+      <div id="pwa-install-container" class="hidden">
+        <button id="btn-install-pwa" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition flex items-center gap-1.5 shadow">
+          <i class="fa-solid fa-download"></i> Instalar App
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navegação por Abas -->
+  <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-[52px] z-30">
+    <div class="max-w-7xl mx-auto px-2 flex justify-around md:justify-start md:space-x-4 overflow-x-auto">
+      <button onclick="switchTab('produtos')" id="tab-produtos" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600 flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-box"></i> Produtos
+      </button>
+      <button onclick="switchTab('scanner')" id="tab-scanner" class="tab-btn px-4 py-3 text-sm font-semibold text-slate-500 hover:text-indigo-600 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-qrcode text-indigo-500"></i> Leitor QR Code
+      </button>
+      <button onclick="switchTab('familias-tipos')" id="tab-familias-tipos" class="tab-btn px-4 py-3 text-sm font-semibold text-slate-500 hover:text-indigo-600 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-tags"></i> Famílias & Tipos
+      </button>
+      <button onclick="switchTab('historico')" id="tab-historico" class="tab-btn px-4 py-3 text-sm font-semibold text-slate-500 hover:text-indigo-600 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-clock-rotate-left"></i> Histórico
+      </button>
+    </div>
+  </nav>
+
+  <!-- Conteúdo Principal -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6">
+
+    <!-- Toast de Notificação -->
+    <div id="toast" class="hidden fixed bottom-5 right-5 z-50 px-4 py-3 rounded-lg shadow-lg text-white font-medium flex items-center gap-2 transition-all duration-300">
+      <span id="toast-message">Mensagem de notificação</span>
+    </div>
+
+    <!-- ==================== ABA 1: PRODUTOS ==================== -->
+    <section id="sec-produtos" class="tab-content space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+        <div class="flex-1 flex flex-col md:flex-row gap-3">
+          <input type="text" id="filtro-busca" placeholder="Buscar por Nome, SKU ou Localização..." class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+          <select id="filtro-familia" class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+            <option value="">Todas as Famílias</option>
+          </select>
+          <select id="filtro-tipo" class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+            <option value="">Todos os Tipos</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-3">
+          <label class="inline-flex items-center cursor-pointer text-sm font-medium text-slate-700">
+            <input type="checkbox" id="filtro-estoque-baixo" class="sr-only peer">
+            <div class="relative w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-600"></div>
+            <span class="ms-2 text-rose-600 font-semibold">Apenas Estoque Baixo</span>
+          </label>
+          <button onclick="abrirModalNovoProduto()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2 shadow-sm">
+            <i class="fa-solid fa-plus"></i> Novo Item
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabela de Produtos -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <th class="p-4">SKU</th>
+                <th class="p-4">Produto</th>
+                <th class="p-4">Família / Tipo</th>
+                <th class="p-4">Localização</th>
+                <th class="p-4 text-center">Qtd Atual</th>
+                <th class="p-4 text-center">Mínimo</th>
+                <th class="p-4 text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="lista-produtos" class="divide-y divide-slate-200 text-sm">
+              <!-- Preenchido via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ABA 2: SCANNER MÓVEL ==================== -->
+    <section id="sec-scanner" class="tab-content hidden space-y-6 max-w-xl mx-auto">
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 text-center space-y-4">
+        <h2 class="text-lg font-bold text-slate-800 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-camera text-indigo-600"></i> Escanear QR Code
+        </h2>
+        <p class="text-xs text-slate-500">Aponte a câmera para a etiqueta no formato FFF.TTT.PPPP</p>
+        
+        <div id="reader-container" class="overflow-hidden rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 p-2 min-h-[250px] flex items-center justify-center">
+          <div id="reader" class="w-full"></div>
+        </div>
+
+        <div class="flex gap-2 justify-center">
+          <button id="btn-start-scanner" onclick="iniciarLeitor()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+            <i class="fa-solid fa-power-off mr-1"></i> Ligar Câmera
+          </button>
+          <button id="btn-stop-scanner" onclick="pararLeitor()" class="bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition hidden">
+            Parar Câmera
+          </button>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100">
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Ou digite o SKU manualmente:</label>
+          <div class="flex gap-2">
+            <input type="text" id="manual-sku" placeholder="Ex: 001.001.0001" class="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+            <button onclick="buscarSKUManual()" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-900">Buscar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ABA 3: FAMÍLIAS & TIPOS ==================== -->
+    <section id="sec-familias-tipos" class="tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Famílias -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
+        <div class="flex justify-between items-center">
+          <h2 class="font-bold text-slate-800"><i class="fa-solid fa-folder text-indigo-600"></i> Famílias (FFF)</h2>
+          <button onclick="abrirModalFamilia()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold">Nova Família</button>
+        </div>
+        <div class="overflow-y-auto max-h-[400px]">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 font-bold text-slate-500 border-b">
+              <tr>
+                <th class="p-2">Cód.</th>
+                <th class="p-2">Nome</th>
+                <th class="p-2 text-right">Ação</th>
+              </tr>
+            </thead>
+            <tbody id="lista-familias" class="divide-y">
+              <!-- Preenchido via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tipos -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
+        <div class="flex justify-between items-center">
+          <h2 class="font-bold text-slate-800"><i class="fa-solid fa-layer-group text-indigo-600"></i> Tipos (TTT)</h2>
+          <button onclick="abrirModalTipo()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold">Novo Tipo</button>
+        </div>
+        <div class="overflow-y-auto max-h-[400px]">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 font-bold text-slate-500 border-b">
+              <tr>
+                <th class="p-2">Família</th>
+                <th class="p-2">Cód.</th>
+                <th class="p-2">Nome</th>
+                <th class="p-2 text-right">Ação</th>
+              </tr>
+            </thead>
+            <tbody id="lista-tipos" class="divide-y">
+              <!-- Preenchido via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ABA 4: HISTÓRICO ==================== -->
+    <section id="sec-historico" class="tab-content hidden space-y-4">
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row gap-3">
+        <input type="text" id="filtro-hist-sku" placeholder="Filtrar por SKU..." class="px-3 py-2 border rounded-lg text-sm">
+        <input type="text" id="filtro-hist-resp" placeholder="Filtrar por Responsável..." class="px-3 py-2 border rounded-lg text-sm">
+        <select id="filtro-hist-tipo" class="px-3 py-2 border rounded-lg text-sm">
+          <option value="">Todas as Movimentações</option>
+          <option value="ENTRADA">Entrada</option>
+          <option value="SAIDA">Saída</option>
+        </select>
+        <button onclick="carregarHistorico()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700">Filtrar</button>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-50 border-b text-slate-500 font-bold uppercase">
+                <th class="p-3">Data/Hora</th>
+                <th class="p-3">Tipo</th>
+                <th class="p-3">SKU - Produto</th>
+                <th class="p-3 text-center">Qtd</th>
+                <th class="p-3 text-center">Estoque Ant. &#8594; Atu.</th>
+                <th class="p-3">Responsável</th>
+                <th class="p-3">Motivo</th>
+              </tr>
+            </thead>
+            <tbody id="lista-historico" class="divide-y divide-slate-200 text-slate-700">
+              <!-- Preenchido via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAIS -->
+  
+  <!-- Modal: Cadastro de Produto -->
+  <div id="modal-produto" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-lg w-full p-6 space-y-4 shadow-xl">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="font-bold text-slate-800 text-lg">Cadastrar Novo Produto</h3>
+        <button onclick="fecharModal('modal-produto')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <form id="form-produto" onsubmit="salvarProduto(event)" class="space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Família *</label>
+            <select id="prod-familia" required onchange="carregarTiposPorFamiliaModal(this.value)" class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo *</label>
+            <select id="prod-tipo" required class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+              <option value="">Selecione a Família...</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Nome do Produto *</label>
+          <input type="text" id="prod-nome" required class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Descrição</label>
+          <textarea id="prod-desc" rows="2" class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Localização (Ex: Corredor A, Prat. 2) *</label>
+          <input type="text" id="prod-loc" required class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Quantidade Inicial</label>
+            <input type="number" id="prod-qtd" value="0" min="0" class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Estoque Mínimo</label>
+            <input type="number" id="prod-min" value="0" min="0" class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-3 border-t">
+          <button type="button" onclick="fecharModal('modal-produto')" class="px-4 py-2 border text-slate-600 rounded-lg text-sm">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700">Salvar Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Movimentação (Entrada/Saída) -->
+  <div id="modal-movimentacao" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-md w-full p-6 space-y-4 shadow-xl">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 id="mov-titulo" class="font-bold text-slate-800 text-lg">Movimentação de Estoque</h3>
+        <button onclick="fecharModal('modal-movimentacao')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      
+      <div class="bg-slate-50 p-3 rounded-lg border text-sm space-y-1">
+        <p class="font-bold text-indigo-700 text-base" id="mov-sku-display">SKU: 000.000.0000</p>
+        <p class="font-semibold text-slate-800" id="mov-nome-display">Nome do Produto</p>
+        <p class="text-xs text-slate-500" id="mov-loc-display"><i class="fa-solid fa-location-dot"></i> Localização</p>
+        <p class="text-xs font-bold text-slate-700" id="mov-saldo-display">Saldo Atual: 0</p>
+      </div>
+
+      <div class="flex border-b">
+        <button id="btn-tab-entrada" onclick="definirTipoMovimentacao('ENTRADA')" class="flex-1 py-2 font-bold text-sm text-emerald-600 border-b-2 border-emerald-600">📥 Entrada</button>
+        <button id="btn-tab-saida" onclick="definirTipoMovimentacao('SAIDA')" class="flex-1 py-2 font-bold text-sm text-slate-400 border-b-2 border-transparent">📤 Saída</button>
+      </div>
+
+      <form id="form-movimentacao" onsubmit="executarMovimentacao(event)" class="space-y-3">
+        <input type="hidden" id="mov-sku-input">
+        <input type="hidden" id="mov-tipo-input" value="ENTRADA">
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Quantidade *</label>
+          <input type="number" id="mov-qtd" min="1" required class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Responsável *</label>
+          <input type="text" id="mov-resp" required placeholder="Nome do operador" class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1" id="lbl-motivo">Motivo / Observação</label>
+          <input type="text" id="mov-motivo" placeholder="Ex: Baixa para arquivo" class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t">
+          <button type="button" onclick="fecharModal('modal-movimentacao')" class="px-4 py-2 border text-slate-600 rounded-lg text-sm">Cancelar</button>
+          <button type="submit" id="btn-submit-mov" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700">Confirmar Entrada</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Imprimir QR Code Etiqueta -->
+  <div id="modal-qrcode" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-sm w-full p-6 text-center space-y-4 shadow-xl">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="font-bold text-slate-800">Etiqueta QR Code</h3>
+        <button onclick="fecharModal('modal-qrcode')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div id="printable-area" class="p-4 border-2 border-dashed border-slate-300 rounded-lg bg-white inline-block">
+        <div id="qrcode-container" class="flex justify-center mb-2"></div>
+        <p id="qr-sku" class="font-mono font-bold text-slate-900 text-lg">000.000.0000</p>
+        <p id="qr-nome" class="font-semibold text-slate-700 text-sm truncate max-w-[200px] mx-auto">Nome Produto</p>
+        <p id="qr-loc" class="text-xs text-slate-500">Loc</p>
+      </div>
+
+      <div class="flex gap-2 justify-center">
+        <button onclick="window.print()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700">
+          <i class="fa-solid fa-print"></i> Imprimir Etiqueta
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Cadastro Família -->
+  <div id="modal-familia" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-sm w-full p-5 space-y-3 shadow-xl">
+      <h3 class="font-bold text-slate-800">Cadastrar Família</h3>
+      <form onsubmit="salvarFamilia(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Código (Ex: 001) *</label>
+          <input type="text" id="fam-codigo" required maxlength="3" placeholder="001" class="w-full border p-2 rounded-lg text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Nome da Família *</label>
+          <input type="text" id="fam-nome" required placeholder="Ex: Documentos" class="w-full border p-2 rounded-lg text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Descrição</label>
+          <input type="text" id="fam-desc" class="w-full border p-2 rounded-lg text-sm">
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="fecharModal('modal-familia')" class="px-3 py-1.5 border text-xs rounded-lg">Cancelar</button>
+          <button type="submit" class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-semibold rounded-lg">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Cadastro Tipo -->
+  <div id="modal-tipo" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-sm w-full p-5 space-y-3 shadow-xl">
+      <h3 class="font-bold text-slate-800">Cadastrar Tipo</h3>
+      <form onsubmit="salvarTipo(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Família Pertencente *</label>
+          <select id="tipo-familia-select" required class="w-full border p-2 rounded-lg text-sm">
+            <option value="">Selecione...</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Código (Ex: 001) *</label>
+          <input type="text" id="tipo-codigo" required maxlength="3" placeholder="001" class="w-full border p-2 rounded-lg text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Nome do Tipo *</label>
+          <input type="text" id="tipo-nome" required placeholder="Ex: Caixa de Arquivo" class="w-full border p-2 rounded-lg text-sm">
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="fecharModal('modal-tipo')" class="px-3 py-1.5 border text-xs rounded-lg">Cancelar</button>
+          <button type="submit" class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-semibold rounded-lg">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
