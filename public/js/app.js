@@ -1,5 +1,5 @@
-// Link direto para o backend Express na Vercel
-const API_URL = 'https://estoque-back-ruddy.vercel.app/api';
+// Link para o backend Express (funciona localmente e na Vercel)
+const API_URL = '/api';
 
 let html5QrcodeScanner = null;
 let produtoAtualMovimentacao = null;
