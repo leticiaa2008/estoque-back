@@ -3,18 +3,51 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Controle de Estoque & Arquivo Morto</title>
+  <title>SENAI | Controle de Estoque & Arquivo Morto</title>
+  <meta name="theme-color" content="#E30613">
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#2563eb">
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            senai: {
+              50: '#fff1f2',
+              100: '#ffe4e6',
+              500: '#f43f5e',
+              600: '#E30613', /* Vermelho SENAI Oficial */
+              700: '#be123c',
+              800: '#9f1239',
+              900: '#881337',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
   <!-- FontAwesome CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Biblioteca de Leitura de QR Code -->
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <!-- Biblioteca de Geração de QR Code -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
   <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
     @media print {
       body * { visibility: hidden; }
       #printable-area, #printable-area * { visibility: visible; }
@@ -22,17 +55,22 @@
     }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col selection:bg-senai-600 selection:text-white">
 
-  <!-- Header -->
-  <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+  <!-- Header SENAI -->
+  <header class="bg-gradient-to-r from-senai-600 via-senai-700 to-senai-900 text-white shadow-lg sticky top-0 z-40 border-b border-senai-800">
+    <div class="max-w-7xl mx-auto px-4 py-3.5 flex justify-between items-center">
       <div class="flex items-center space-x-3">
-        <i class="fa-solid fa-boxes-packing text-2xl"></i>
-        <h1 class="font-bold text-lg md:text-xl tracking-wide">Estoque & Arquivo Morto</h1>
+        <div class="bg-white/10 p-2 rounded-xl backdrop-blur-md border border-white/20">
+          <i class="fa-solid fa-boxes-packing text-2xl text-white"></i>
+        </div>
+        <div>
+          <span class="text-xs font-bold tracking-widest text-white/80 block uppercase">SENAI</span>
+          <h1 class="font-extrabold text-lg md:text-xl tracking-tight leading-none">Estoque & Arquivo Morto</h1>
+        </div>
       </div>
       <div id="pwa-install-container" class="hidden">
-        <button id="btn-install-pwa" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition flex items-center gap-1.5 shadow">
+        <button id="btn-install-pwa" class="bg-white/20 hover:bg-white/30 text-white border border-white/30 px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-semibold transition-all flex items-center gap-2 shadow-sm backdrop-blur-md">
           <i class="fa-solid fa-download"></i> Instalar App
         </button>
       </div>
@@ -40,18 +78,18 @@
   </header>
 
   <!-- Navegação por Abas -->
-  <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-[52px] z-30">
-    <div class="max-w-7xl mx-auto px-2 flex justify-around md:justify-start md:space-x-4 overflow-x-auto">
-      <button onclick="switchTab('produtos')" id="tab-produtos" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600 flex items-center gap-2 whitespace-nowrap">
-        <i class="fa-solid fa-box"></i> Produtos
+  <nav class="bg-white/80 backdrop-blur-md border-b border-slate-200/80 shadow-sm sticky top-[61px] z-30">
+    <div class="max-w-7xl mx-auto px-4 flex justify-around md:justify-start space-x-1 md:space-x-6 overflow-x-auto">
+      <button onclick="switchTab('produtos')" id="tab-produtos" class="tab-btn py-3.5 px-3 text-sm font-bold border-b-2 border-senai-600 text-senai-600 flex items-center gap-2 whitespace-nowrap transition-all">
+        <i class="fa-solid fa-box text-senai-600"></i> Produtos
       </button>
-      <button onclick="switchTab('scanner')" id="tab-scanner" class="tab-btn px-4 py-3 text-sm font-semibold text-slate-500 hover:text-indigo-600 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap">
-        <i class="fa-solid fa-qrcode text-indigo-500"></i> Leitor QR Code
+      <button onclick="switchTab('scanner')" id="tab-scanner" class="tab-btn py-3.5 px-3 text-sm font-medium text-slate-500 hover:text-senai-600 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap transition-all">
+        <i class="fa-solid fa-qrcode"></i> Leitor QR Code
       </button>
-      <button onclick="switchTab('familias-tipos')" id="tab-familias-tipos" class="tab-btn px-4 py-3 text-sm font-semibold text-slate-500 hover:text-indigo-600 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap">
+      <button onclick="switchTab('familias-tipos')" id="tab-familias-tipos" class="tab-btn py-3.5 px-3 text-sm font-medium text-slate-500 hover:text-senai-600 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap transition-all">
         <i class="fa-solid fa-tags"></i> Famílias & Tipos
       </button>
-      <button onclick="switchTab('historico')" id="tab-historico" class="tab-btn px-4 py-3 text-sm font-semibold text-slate-500 hover:text-indigo-600 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap">
+      <button onclick="switchTab('historico')" id="tab-historico" class="tab-btn py-3.5 px-3 text-sm font-medium text-slate-500 hover:text-senai-600 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap transition-all">
         <i class="fa-solid fa-clock-rotate-left"></i> Histórico
       </button>
     </div>
@@ -61,50 +99,54 @@
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6">
 
     <!-- Toast de Notificação -->
-    <div id="toast" class="hidden fixed bottom-5 right-5 z-50 px-4 py-3 rounded-lg shadow-lg text-white font-medium flex items-center gap-2 transition-all duration-300">
+    <div id="toast" class="hidden fixed bottom-5 right-5 z-50 px-5 py-3.5 rounded-2xl shadow-2xl bg-slate-900 text-white font-semibold flex items-center gap-3 border border-slate-700 transition-all duration-300">
+      <i class="fa-solid fa-circle-info text-senai-500"></i>
       <span id="toast-message">Mensagem de notificação</span>
     </div>
 
     <!-- ==================== ABA 1: PRODUTOS ==================== -->
     <section id="sec-produtos" class="tab-content space-y-6">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200/80">
         <div class="flex-1 flex flex-col md:flex-row gap-3">
-          <input type="text" id="filtro-busca" placeholder="Buscar por Nome, SKU ou Localização..." class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
-          <select id="filtro-familia" class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+          <div class="relative flex-1">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input type="text" id="filtro-busca" placeholder="Buscar por Nome, SKU ou Localização..." class="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600 text-sm transition">
+          </div>
+          <select id="filtro-familia" class="px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600 text-sm text-slate-600 transition">
             <option value="">Todas as Famílias</option>
           </select>
-          <select id="filtro-tipo" class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+          <select id="filtro-tipo" class="px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600 text-sm text-slate-600 transition">
             <option value="">Todos os Tipos</option>
           </select>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center justify-between md:justify-end gap-4 border-t md:border-t-0 pt-3 md:pt-0 border-slate-100">
           <label class="inline-flex items-center cursor-pointer text-sm font-medium text-slate-700">
             <input type="checkbox" id="filtro-estoque-baixo" class="sr-only peer">
-            <div class="relative w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-600"></div>
-            <span class="ms-2 text-rose-600 font-semibold">Apenas Estoque Baixo</span>
+            <div class="relative w-10 h-5.5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-senai-600"></div>
+            <span class="ms-2.5 text-xs font-bold text-senai-600 uppercase tracking-wider">Estoque Baixo</span>
           </label>
-          <button onclick="abrirModalNovoProduto()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2 shadow-sm">
+          <button onclick="abrirModalNovoProduto()" class="bg-senai-600 hover:bg-senai-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-sm shadow-senai-600/30">
             <i class="fa-solid fa-plus"></i> Novo Item
           </button>
         </div>
       </div>
 
       <!-- Tabela de Produtos -->
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
-              <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                <th class="p-4">SKU</th>
+              <tr class="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                <th class="p-4 pl-6">SKU</th>
                 <th class="p-4">Produto</th>
                 <th class="p-4">Família / Tipo</th>
                 <th class="p-4">Localização</th>
                 <th class="p-4 text-center">Qtd Atual</th>
                 <th class="p-4 text-center">Mínimo</th>
-                <th class="p-4 text-right">Ações</th>
+                <th class="p-4 pr-6 text-right">Ações</th>
               </tr>
             </thead>
-            <tbody id="lista-produtos" class="divide-y divide-slate-200 text-sm">
+            <tbody id="lista-produtos" class="divide-y divide-slate-100 text-sm text-slate-700">
               <!-- Preenchido via JS -->
             </tbody>
           </table>
@@ -114,30 +156,33 @@
 
     <!-- ==================== ABA 2: SCANNER MÓVEL ==================== -->
     <section id="sec-scanner" class="tab-content hidden space-y-6 max-w-xl mx-auto">
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 text-center space-y-4">
-        <h2 class="text-lg font-bold text-slate-800 flex items-center justify-center gap-2">
-          <i class="fa-solid fa-camera text-indigo-600"></i> Escanear QR Code
-        </h2>
-        <p class="text-xs text-slate-500">Aponte a câmera para a etiqueta no formato FFF.TTT.PPPP</p>
-        
-        <div id="reader-container" class="overflow-hidden rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 p-2 min-h-[250px] flex items-center justify-center">
+      <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200/80 text-center space-y-5">
+        <div class="inline-flex p-3 bg-senai-50 text-senai-600 rounded-2xl border border-senai-100">
+          <i class="fa-solid fa-qrcode text-3xl"></i>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-slate-800">Escanear Código QR</h2>
+          <p class="text-xs text-slate-500 mt-1">Aponte a câmera para a etiqueta no padrão <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">FFF.TTT.PPPP</span></p>
+        </div>
+
+        <div id="reader-container" class="overflow-hidden rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-3 min-h-[260px] flex items-center justify-center">
           <div id="reader" class="w-full"></div>
         </div>
 
-        <div class="flex gap-2 justify-center">
-          <button id="btn-start-scanner" onclick="iniciarLeitor()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
-            <i class="fa-solid fa-power-off mr-1"></i> Ligar Câmera
+        <div class="flex gap-3 justify-center">
+          <button id="btn-start-scanner" onclick="iniciarLeitor()" class="bg-senai-600 hover:bg-senai-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm shadow-senai-600/30 flex items-center gap-2">
+            <i class="fa-solid fa-power-off"></i> Ligar Câmera
           </button>
-          <button id="btn-stop-scanner" onclick="pararLeitor()" class="bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition hidden">
+          <button id="btn-stop-scanner" onclick="pararLeitor()" class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all hidden">
             Parar Câmera
           </button>
         </div>
 
-        <div class="pt-4 border-t border-slate-100">
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Ou digite o SKU manualmente:</label>
+        <div class="pt-5 border-t border-slate-100 text-left">
+          <label class="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">Busca Manual por SKU</label>
           <div class="flex gap-2">
-            <input type="text" id="manual-sku" placeholder="Ex: 001.001.0001" class="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
-            <button onclick="buscarSKUManual()" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-900">Buscar</button>
+            <input type="text" id="manual-sku" placeholder="Ex: 001.001.0001" class="flex-1 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-mono focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600">
+            <button onclick="buscarSKUManual()" class="bg-slate-900 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-800 transition">Buscar</button>
           </div>
         </div>
       </div>
@@ -146,21 +191,24 @@
     <!-- ==================== ABA 3: FAMÍLIAS & TIPOS ==================== -->
     <section id="sec-familias-tipos" class="tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Famílias -->
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
-        <div class="flex justify-between items-center">
-          <h2 class="font-bold text-slate-800"><i class="fa-solid fa-folder text-indigo-600"></i> Famílias (FFF)</h2>
-          <button onclick="abrirModalFamilia()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold">Nova Família</button>
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 space-y-4">
+        <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-folder text-senai-600 text-lg"></i>
+            <h2 class="font-bold text-slate-800">Famílias (FFF)</h2>
+          </div>
+          <button onclick="abrirModalFamilia()" class="bg-senai-600 hover:bg-senai-700 text-white text-xs px-3.5 py-2 rounded-xl font-bold transition">Nova Família</button>
         </div>
-        <div class="overflow-y-auto max-h-[400px]">
+        <div class="overflow-y-auto max-h-[380px]">
           <table class="w-full text-left text-xs">
-            <thead class="bg-slate-50 font-bold text-slate-500 border-b">
+            <thead class="bg-slate-50 font-bold text-slate-400 uppercase tracking-wider border-b">
               <tr>
-                <th class="p-2">Cód.</th>
-                <th class="p-2">Nome</th>
-                <th class="p-2 text-right">Ação</th>
+                <th class="p-2.5">Cód.</th>
+                <th class="p-2.5">Nome</th>
+                <th class="p-2.5 text-right">Ação</th>
               </tr>
             </thead>
-            <tbody id="lista-familias" class="divide-y">
+            <tbody id="lista-familias" class="divide-y divide-slate-100 text-slate-700">
               <!-- Preenchido via JS -->
             </tbody>
           </table>
@@ -168,22 +216,25 @@
       </div>
 
       <!-- Tipos -->
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
-        <div class="flex justify-between items-center">
-          <h2 class="font-bold text-slate-800"><i class="fa-solid fa-layer-group text-indigo-600"></i> Tipos (TTT)</h2>
-          <button onclick="abrirModalTipo()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold">Novo Tipo</button>
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 space-y-4">
+        <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-layer-group text-senai-600 text-lg"></i>
+            <h2 class="font-bold text-slate-800">Tipos (TTT)</h2>
+          </div>
+          <button onclick="abrirModalTipo()" class="bg-senai-600 hover:bg-senai-700 text-white text-xs px-3.5 py-2 rounded-xl font-bold transition">Novo Tipo</button>
         </div>
-        <div class="overflow-y-auto max-h-[400px]">
+        <div class="overflow-y-auto max-h-[380px]">
           <table class="w-full text-left text-xs">
-            <thead class="bg-slate-50 font-bold text-slate-500 border-b">
+            <thead class="bg-slate-50 font-bold text-slate-400 uppercase tracking-wider border-b">
               <tr>
-                <th class="p-2">Família</th>
-                <th class="p-2">Cód.</th>
-                <th class="p-2">Nome</th>
-                <th class="p-2 text-right">Ação</th>
+                <th class="p-2.5">Família</th>
+                <th class="p-2.5">Cód.</th>
+                <th class="p-2.5">Nome</th>
+                <th class="p-2.5 text-right">Ação</th>
               </tr>
             </thead>
-            <tbody id="lista-tipos" class="divide-y">
+            <tbody id="lista-tipos" class="divide-y divide-slate-100 text-slate-700">
               <!-- Preenchido via JS -->
             </tbody>
           </table>
@@ -193,32 +244,32 @@
 
     <!-- ==================== ABA 4: HISTÓRICO ==================== -->
     <section id="sec-historico" class="tab-content hidden space-y-4">
-      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row gap-3">
-        <input type="text" id="filtro-hist-sku" placeholder="Filtrar por SKU..." class="px-3 py-2 border rounded-lg text-sm">
-        <input type="text" id="filtro-hist-resp" placeholder="Filtrar por Responsável..." class="px-3 py-2 border rounded-lg text-sm">
-        <select id="filtro-hist-tipo" class="px-3 py-2 border rounded-lg text-sm">
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col md:flex-row gap-3">
+        <input type="text" id="filtro-hist-sku" placeholder="Filtrar por SKU..." class="px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600">
+        <input type="text" id="filtro-hist-resp" placeholder="Filtrar por Responsável..." class="px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600">
+        <select id="filtro-hist-tipo" class="px-3.5 py-2 border border-slate-200 rounded-xl text-sm text-slate-600 focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600">
           <option value="">Todas as Movimentações</option>
           <option value="ENTRADA">Entrada</option>
           <option value="SAIDA">Saída</option>
         </select>
-        <button onclick="carregarHistorico()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700">Filtrar</button>
+        <button onclick="carregarHistorico()" class="bg-senai-600 text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-senai-700 transition">Filtrar</button>
       </div>
 
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-xs">
             <thead>
-              <tr class="bg-slate-50 border-b text-slate-500 font-bold uppercase">
-                <th class="p-3">Data/Hora</th>
-                <th class="p-3">Tipo</th>
-                <th class="p-3">SKU - Produto</th>
-                <th class="p-3 text-center">Qtd</th>
-                <th class="p-3 text-center">Estoque Ant. &#8594; Atu.</th>
-                <th class="p-3">Responsável</th>
-                <th class="p-3">Motivo</th>
+              <tr class="bg-slate-50 font-bold text-slate-400 uppercase tracking-wider border-b">
+                <th class="p-3.5">Data/Hora</th>
+                <th class="p-3.5">Tipo</th>
+                <th class="p-3.5">SKU - Produto</th>
+                <th class="p-3.5 text-center">Qtd</th>
+                <th class="p-3.5 text-center">Estoque Ant. &#8594; Atu.</th>
+                <th class="p-3.5">Responsável</th>
+                <th class="p-3.5">Motivo</th>
               </tr>
             </thead>
-            <tbody id="lista-historico" class="divide-y divide-slate-200 text-slate-700">
+            <tbody id="lista-historico" class="divide-y divide-slate-100 text-slate-700">
               <!-- Preenchido via JS -->
             </tbody>
           </table>
@@ -228,78 +279,80 @@
 
   </main>
 
-  <!-- MODAIS -->
+  <!-- ==================== MODAIS ==================== -->
   
   <!-- Modal: Cadastro de Produto -->
-  <div id="modal-produto" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl max-w-lg w-full p-6 space-y-4 shadow-xl">
-      <div class="flex justify-between items-center border-b pb-3">
-        <h3 class="font-bold text-slate-800 text-lg">Cadastrar Novo Produto</h3>
-        <button onclick="fecharModal('modal-produto')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+  <div id="modal-produto" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+          <i class="fa-solid fa-box text-senai-600"></i> Cadastrar Novo Produto
+        </h3>
+        <button onclick="fecharModal('modal-produto')" class="text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
-      <form id="form-produto" onsubmit="salvarProduto(event)" class="space-y-3">
+      <form id="form-produto" onsubmit="salvarProduto(event)" class="space-y-4">
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Família *</label>
-            <select id="prod-familia" required onchange="carregarTiposPorFamiliaModal(this.value)" class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+            <label class="block text-xs font-bold text-slate-600 mb-1">Família *</label>
+            <select id="prod-familia" required onchange="carregarTiposPorFamiliaModal(this.value)" class="w-full border border-slate-200 p-2.5 rounded-xl text-sm focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600">
               <option value="">Selecione...</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo *</label>
-            <select id="prod-tipo" required class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+            <label class="block text-xs font-bold text-slate-600 mb-1">Tipo *</label>
+            <select id="prod-tipo" required class="w-full border border-slate-200 p-2.5 rounded-xl text-sm focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600">
               <option value="">Selecione a Família...</option>
             </select>
           </div>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Nome do Produto *</label>
-          <input type="text" id="prod-nome" required class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+          <label class="block text-xs font-bold text-slate-600 mb-1">Nome do Produto *</label>
+          <input type="text" id="prod-nome" required class="w-full border border-slate-200 p-2.5 rounded-xl text-sm focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Descrição</label>
-          <textarea id="prod-desc" rows="2" class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"></textarea>
+          <label class="block text-xs font-bold text-slate-600 mb-1">Descrição</label>
+          <textarea id="prod-desc" rows="2" class="w-full border border-slate-200 p-2.5 rounded-xl text-sm focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600"></textarea>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Localização (Ex: Corredor A, Prat. 2) *</label>
-          <input type="text" id="prod-loc" required class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+          <label class="block text-xs font-bold text-slate-600 mb-1">Localização (Ex: Corredor A, Prat. 2) *</label>
+          <input type="text" id="prod-loc" required class="w-full border border-slate-200 p-2.5 rounded-xl text-sm focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600">
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Quantidade Inicial</label>
-            <input type="number" id="prod-qtd" value="0" min="0" class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+            <label class="block text-xs font-bold text-slate-600 mb-1">Quantidade Inicial</label>
+            <input type="number" id="prod-qtd" value="0" min="0" class="w-full border border-slate-200 p-2.5 rounded-xl text-sm focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Estoque Mínimo</label>
-            <input type="number" id="prod-min" value="0" min="0" class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+            <label class="block text-xs font-bold text-slate-600 mb-1">Estoque Mínimo</label>
+            <input type="number" id="prod-min" value="0" min="0" class="w-full border border-slate-200 p-2.5 rounded-xl text-sm focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600">
           </div>
         </div>
-        <div class="flex justify-end gap-2 pt-3 border-t">
-          <button type="button" onclick="fecharModal('modal-produto')" class="px-4 py-2 border text-slate-600 rounded-lg text-sm">Cancelar</button>
-          <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700">Salvar Item</button>
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="fecharModal('modal-produto')" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm font-semibold hover:bg-slate-50 transition">Cancelar</button>
+          <button type="submit" class="px-5 py-2 bg-senai-600 text-white rounded-xl text-sm font-bold hover:bg-senai-700 transition shadow-sm shadow-senai-600/30">Salvar Item</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- Modal: Movimentação (Entrada/Saída) -->
-  <div id="modal-movimentacao" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl max-w-md w-full p-6 space-y-4 shadow-xl">
-      <div class="flex justify-between items-center border-b pb-3">
+  <div id="modal-movimentacao" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
         <h3 id="mov-titulo" class="font-bold text-slate-800 text-lg">Movimentação de Estoque</h3>
-        <button onclick="fecharModal('modal-movimentacao')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+        <button onclick="fecharModal('modal-movimentacao')" class="text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
       
-      <div class="bg-slate-50 p-3 rounded-lg border text-sm space-y-1">
-        <p class="font-bold text-indigo-700 text-base" id="mov-sku-display">SKU: 000.000.0000</p>
-        <p class="font-semibold text-slate-800" id="mov-nome-display">Nome do Produto</p>
-        <p class="text-xs text-slate-500" id="mov-loc-display"><i class="fa-solid fa-location-dot"></i> Localização</p>
-        <p class="text-xs font-bold text-slate-700" id="mov-saldo-display">Saldo Atual: 0</p>
+      <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60 space-y-1">
+        <p class="font-mono font-bold text-senai-600 text-base" id="mov-sku-display">SKU: 000.000.0000</p>
+        <p class="font-bold text-slate-800" id="mov-nome-display">Nome do Produto</p>
+        <p class="text-xs text-slate-500" id="mov-loc-display"><i class="fa-solid fa-location-dot text-senai-600"></i> Localização</p>
+        <p class="text-xs font-bold text-slate-700 pt-1" id="mov-saldo-display">Saldo Atual: 0</p>
       </div>
 
-      <div class="flex border-b">
-        <button id="btn-tab-entrada" onclick="definirTipoMovimentacao('ENTRADA')" class="flex-1 py-2 font-bold text-sm text-emerald-600 border-b-2 border-emerald-600">📥 Entrada</button>
-        <button id="btn-tab-saida" onclick="definirTipoMovimentacao('SAIDA')" class="flex-1 py-2 font-bold text-sm text-slate-400 border-b-2 border-transparent">📤 Saída</button>
+      <div class="flex bg-slate-100 p-1 rounded-xl">
+        <button id="btn-tab-entrada" type="button" onclick="definirTipoMovimentacao('ENTRADA')" class="flex-1 py-2 font-bold text-xs rounded-lg bg-white text-emerald-600 shadow-sm transition">📥 Entrada</button>
+        <button id="btn-tab-saida" type="button" onclick="definirTipoMovimentacao('SAIDA')" class="flex-1 py-2 font-bold text-xs rounded-lg text-slate-500 transition">📤 Saída</button>
       </div>
 
       <form id="form-movimentacao" onsubmit="executarMovimentacao(event)" class="space-y-3">
@@ -307,43 +360,46 @@
         <input type="hidden" id="mov-tipo-input" value="ENTRADA">
 
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Quantidade *</label>
-          <input type="number" id="mov-qtd" min="1" required class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+          <label class="block text-xs font-bold text-slate-600 mb-1">Quantidade *</label>
+          <input type="number" id="mov-qtd" min="1" required class="w-full border border-slate-200 p-2.5 rounded-xl text-sm focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Responsável *</label>
-          <input type="text" id="mov-resp" required placeholder="Nome do operador" class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+          <label class="block text-xs font-bold text-slate-600 mb-1">Responsável *</label>
+          <input type="text" id="mov-resp" required placeholder="Nome do operador" class="w-full border border-slate-200 p-2.5 rounded-xl text-sm focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1" id="lbl-motivo">Motivo / Observação</label>
-          <input type="text" id="mov-motivo" placeholder="Ex: Baixa para arquivo" class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+          <label class="block text-xs font-bold text-slate-600 mb-1" id="lbl-motivo">Motivo / Observação</label>
+          <input type="text" id="mov-motivo" placeholder="Ex: Baixa para arquivo" class="w-full border border-slate-200 p-2.5 rounded-xl text-sm focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600">
         </div>
 
-        <div class="flex justify-end gap-2 pt-3 border-t">
-          <button type="button" onclick="fecharModal('modal-movimentacao')" class="px-4 py-2 border text-slate-600 rounded-lg text-sm">Cancelar</button>
-          <button type="submit" id="btn-submit-mov" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700">Confirmar Entrada</button>
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="fecharModal('modal-movimentacao')" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm font-semibold hover:bg-slate-50 transition">Cancelar</button>
+          <button type="submit" id="btn-submit-mov" class="px-5 py-2 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition shadow-sm">Confirmar Entrada</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- Modal: Imprimir QR Code Etiqueta -->
-  <div id="modal-qrcode" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl max-w-sm w-full p-6 text-center space-y-4 shadow-xl">
-      <div class="flex justify-between items-center border-b pb-2">
-        <h3 class="font-bold text-slate-800">Etiqueta QR Code</h3>
-        <button onclick="fecharModal('modal-qrcode')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+  <div id="modal-qrcode" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 text-center space-y-5 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-print text-senai-600"></i> Etiqueta SENAI
+        </h3>
+        <button onclick="fecharModal('modal-qrcode')" class="text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <div id="printable-area" class="p-4 border-2 border-dashed border-slate-300 rounded-lg bg-white inline-block">
-        <div id="qrcode-container" class="flex justify-center mb-2"></div>
-        <p id="qr-sku" class="font-mono font-bold text-slate-900 text-lg">000.000.0000</p>
-        <p id="qr-nome" class="font-semibold text-slate-700 text-sm truncate max-w-[200px] mx-auto">Nome Produto</p>
-        <p id="qr-loc" class="text-xs text-slate-500">Loc</p>
+      <div id="printable-area" class="p-5 border-2 border-dashed border-slate-200 rounded-2xl bg-white inline-block shadow-inner">
+        <div class="text-[10px] font-extrabold tracking-widest text-senai-600 uppercase mb-2">SENAI</div>
+        <div id="qrcode-container" class="flex justify-center mb-3"></div>
+        <p id="qr-sku" class="font-mono font-extrabold text-slate-900 text-lg">000.000.0000</p>
+        <p id="qr-nome" class="font-bold text-slate-700 text-sm truncate max-w-[200px] mx-auto">Nome Produto</p>
+        <p id="qr-loc" class="text-xs text-slate-400 mt-1">Loc</p>
       </div>
 
       <div class="flex gap-2 justify-center">
-        <button onclick="window.print()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700">
+        <button onclick="window.print()" class="bg-senai-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-senai-700 transition shadow-sm shadow-senai-600/30 flex items-center gap-2">
           <i class="fa-solid fa-print"></i> Imprimir Etiqueta
         </button>
       </div>
@@ -351,52 +407,52 @@
   </div>
 
   <!-- Modal: Cadastro Família -->
-  <div id="modal-familia" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl max-w-sm w-full p-5 space-y-3 shadow-xl">
-      <h3 class="font-bold text-slate-800">Cadastrar Família</h3>
+  <div id="modal-familia" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl border border-slate-100">
+      <h3 class="font-bold text-slate-800 text-lg">Cadastrar Família</h3>
       <form onsubmit="salvarFamilia(event)" class="space-y-3">
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Código (Ex: 001) *</label>
-          <input type="text" id="fam-codigo" required maxlength="3" placeholder="001" class="w-full border p-2 rounded-lg text-sm">
+          <label class="block text-xs font-bold text-slate-600 mb-1">Código (Ex: 001) *</label>
+          <input type="text" id="fam-codigo" required maxlength="3" placeholder="001" class="w-full border border-slate-200 p-2.5 rounded-xl text-sm font-mono focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Nome da Família *</label>
-          <input type="text" id="fam-nome" required placeholder="Ex: Documentos" class="w-full border p-2 rounded-lg text-sm">
+          <label class="block text-xs font-bold text-slate-600 mb-1">Nome da Família *</label>
+          <input type="text" id="fam-nome" required placeholder="Ex: Documentos" class="w-full border border-slate-200 p-2.5 rounded-xl text-sm focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Descrição</label>
-          <input type="text" id="fam-desc" class="w-full border p-2 rounded-lg text-sm">
+          <label class="block text-xs font-bold text-slate-600 mb-1">Descrição</label>
+          <input type="text" id="fam-desc" class="w-full border border-slate-200 p-2.5 rounded-xl text-sm focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600">
         </div>
-        <div class="flex justify-end gap-2 pt-2">
-          <button type="button" onclick="fecharModal('modal-familia')" class="px-3 py-1.5 border text-xs rounded-lg">Cancelar</button>
-          <button type="submit" class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-semibold rounded-lg">Salvar</button>
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="fecharModal('modal-familia')" class="px-4 py-2 border border-slate-200 text-xs font-semibold rounded-xl hover:bg-slate-50 transition">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-senai-600 text-white text-xs font-bold rounded-xl hover:bg-senai-700 transition">Salvar</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- Modal: Cadastro Tipo -->
-  <div id="modal-tipo" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl max-w-sm w-full p-5 space-y-3 shadow-xl">
-      <h3 class="font-bold text-slate-800">Cadastrar Tipo</h3>
+  <div id="modal-tipo" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl border border-slate-100">
+      <h3 class="font-bold text-slate-800 text-lg">Cadastrar Tipo</h3>
       <form onsubmit="salvarTipo(event)" class="space-y-3">
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Família Pertencente *</label>
-          <select id="tipo-familia-select" required class="w-full border p-2 rounded-lg text-sm">
+          <label class="block text-xs font-bold text-slate-600 mb-1">Família Pertencente *</label>
+          <select id="tipo-familia-select" required class="w-full border border-slate-200 p-2.5 rounded-xl text-sm focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600">
             <option value="">Selecione...</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Código (Ex: 001) *</label>
-          <input type="text" id="tipo-codigo" required maxlength="3" placeholder="001" class="w-full border p-2 rounded-lg text-sm">
+          <label class="block text-xs font-bold text-slate-600 mb-1">Código (Ex: 001) *</label>
+          <input type="text" id="tipo-codigo" required maxlength="3" placeholder="001" class="w-full border border-slate-200 p-2.5 rounded-xl text-sm font-mono focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Nome do Tipo *</label>
-          <input type="text" id="tipo-nome" required placeholder="Ex: Caixa de Arquivo" class="w-full border p-2 rounded-lg text-sm">
+          <label class="block text-xs font-bold text-slate-600 mb-1">Nome do Tipo *</label>
+          <input type="text" id="tipo-nome" required placeholder="Ex: Caixa de Arquivo" class="w-full border border-slate-200 p-2.5 rounded-xl text-sm focus:ring-2 focus:ring-senai-600/20 focus:border-senai-600">
         </div>
-        <div class="flex justify-end gap-2 pt-2">
-          <button type="button" onclick="fecharModal('modal-tipo')" class="px-3 py-1.5 border text-xs rounded-lg">Cancelar</button>
-          <button type="submit" class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-semibold rounded-lg">Salvar</button>
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="fecharModal('modal-tipo')" class="px-4 py-2 border border-slate-200 text-xs font-semibold rounded-xl hover:bg-slate-50 transition">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-senai-600 text-white text-xs font-bold rounded-xl hover:bg-senai-700 transition">Salvar</button>
         </div>
       </form>
     </div>
