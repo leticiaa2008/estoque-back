@@ -105,6 +105,8 @@ estoque/
 │
 └── README.md
 
+```text
+
 A estrutura pode variar de acordo com a organização final do projeto.
 
 # 🗃️ Banco de Dados
