@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 require("dotenv").config();
 
 const app = express();
@@ -10,6 +11,9 @@ const app = express();
 // ======================================================
 
 app.use(cors());
+
+// Servir arquivos estáticos da pasta public
+app.use(express.static(path.join(__dirname, "public")));
 
 app.use(express.json());
 
@@ -48,29 +52,23 @@ app.use(
 
 
 // ======================================================
-// ROTA PRINCIPAL
+// ROTA PRINCIPAL (Servir a interface HTML)
 // ======================================================
 
 app.get("/", (req, res) => {
-
-    res.json({
-        sucesso: true,
-        sistema: "Controle de Estoque & Arquivo Morto",
-        status: "online",
-        versao: "1.0.0"
-    });
-
+    res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 
 // ======================================================
-// ROTA DE TESTE
+// ROTA DE TESTE DA API
 // ======================================================
 
 app.get("/api", (req, res) => {
 
     res.json({
         sucesso: true,
+        sistema: "Controle de Estoque & Arquivo Morto",
         mensagem:
             "API do Controle de Estoque funcionando!",
         rotas: {
@@ -122,10 +120,10 @@ app.use((err, req, res, next) => {
 const PORT =
     process.env.PORT || 3000;
 
+if (require.main === module) {
+    app.listen(PORT, () => {
 
-app.listen(PORT, () => {
-
-    console.log(`
+        console.log(`
 ========================================
    📦 CONTROLE DE ESTOQUE & ARQUIVO
 ========================================
@@ -148,6 +146,10 @@ app.listen(PORT, () => {
    http://localhost:${PORT}/api/movimentacoes
 
 ========================================
-    `);
+        `);
 
-});
+    });
+}
+
+module.exports = app;
+
