@@ -485,22 +485,22 @@ Exemplo:
 | 11/08/2026 10:45 | Mouse USB             | Entrada |          3 | Carlos      |
 ```
 
-🔎 Pesquisa
+# 🔎 Pesquisa
 
 O painel administrativo permite pesquisar produtos por:
 
-Código
-Nome
-Família
-Tipo
-Localização
+-Código
+-Nome
+-Família
+-Tipo
+-Localização
 
 Exemplo de pesquisa:
-
+```text
 001.001.0001
-
+```
 Resultado:
-
+```text
 Caixa de Arquivo 2024
 
 Localização:
@@ -508,6 +508,7 @@ Estante A - Prateleira 1
 
 Estoque:
 15 unidades
+```
 🏷️ QR Code
 
 Cada produto possui um QR Code relacionado ao seu código SKU.
