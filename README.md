@@ -490,9 +490,13 @@ Exemplo:
 O painel administrativo permite pesquisar produtos por:
 
 -Código
+
 -Nome
+
 -Família
+
 -Tipo
+
 -Localização
 
 Exemplo de pesquisa:
@@ -509,18 +513,18 @@ Estante A - Prateleira 1
 Estoque:
 15 unidades
 ```
-🏷️ QR Code
+# 🏷️ QR Code
 
 Cada produto possui um QR Code relacionado ao seu código SKU.
 
 Exemplo:
-
+```text
 001.001.0001
-
+```
 O QR Code contém o código utilizado pelo sistema para localizar o produto.
 
 O processo é:
-
+```text
 QR Code
    ↓
 Código SKU
@@ -530,58 +534,64 @@ API
 Supabase
    ↓
 Produto
-☁️ Deploy na Vercel
+```
+# ☁️ Deploy na Vercel
 
 O backend pode ser publicado na Vercel.
 
 Depois do deploy, será gerada uma URL semelhante a:
-
+```text
 https://estoque-back.vercel.app
-
+```
 Essa URL deverá ser configurada no frontend.
 
 Exemplo:
-
+```text
 const API_URL = "https://estoque-back.vercel.app";
-🔑 Variáveis de ambiente na Vercel
+```
+# 🔑 Variáveis de ambiente na Vercel
 
 No painel da Vercel, acesse:
-
+```text
 Project
 → Settings
 → Environment Variables
-
+```
 Adicione:
-
+```text
 SUPABASE_URL
-
+```
 e:
-
+```text
 SUPABASE_KEY
-
+```
 Exemplo:
-
+```text
 SUPABASE_URL = https://seu-projeto.supabase.co
 
 SUPABASE_KEY = sua-chave-do-supabase
-
+```
 Também pode ser definida:
-
+```text
 PORT = 3000
-🧪 Testando a API
+```
+
+#🧪 Testando a API
 
 A API pode ser testada utilizando ferramentas como:
 
-Postman
-Thunder Client
-Insomnia
+-Postman
+
+-Thunder Client
+
+-Insomnia
 
 Exemplo:
-
+```text
 GET /api/produtos
-
+```
 Resposta esperada:
-
+```text
 [
   {
     "codigo": "001.001.0001",
@@ -590,12 +600,14 @@ Resposta esperada:
     "estoque_minimo": 5
   }
 ]
-📱 Responsividade
+```
+
+# 📱 Responsividade
 
 O sistema foi desenvolvido pensando em computadores e dispositivos móveis.
 
 No computador:
-
+```text
 ┌─────────────────────────────────────┐
 │           PAINEL DE ESTOQUE         │
 │                                     │
@@ -603,9 +615,9 @@ No computador:
 │                                     │
 │ Histórico | Relatórios              │
 └─────────────────────────────────────┘
-
+```
 No celular:
-
+```text
 ┌───────────────────┐
 │ 📦 ESTOQUE        │
 ├───────────────────┤
@@ -619,19 +631,20 @@ No celular:
 │ 📦 Produtos       │
 │                   │
 └───────────────────┘
-🔒 Segurança
+```
+# 🔒 Segurança
 
 As credenciais do banco de dados não devem ser armazenadas diretamente no código-fonte.
 
 Utilize:
-
+```text
 .env
-
+```
 e variáveis de ambiente.
 
 O arquivo .env deve permanecer fora do GitHub.
 
-⭐ Funcionalidades extras
+# ⭐ Funcionalidades extras
 
 O projeto pode receber funcionalidades adicionais, como:
 
@@ -646,7 +659,9 @@ O projeto pode receber funcionalidades adicionais, como:
 📷 Leitura de QR Code
 🖨️ Impressão de etiquetas
 📋 Exportação para Excel/CSV
-🚀 Fluxo geral do sistema
+
+# 🚀 Fluxo geral do sistema
+```text
                     SISTEMA DE ESTOQUE
                            │
           ┌────────────────┼────────────────┐
@@ -661,11 +676,13 @@ O projeto pode receber funcionalidades adicionais, como:
                            │
                            ▼
                     CONTROLE DE ESTOQUE
-👩‍💻 Desenvolvimento
+```
+
+# 👩‍💻 Desenvolvimento
 
 Projeto desenvolvido como atividade prática do 4º Semestre, com foco em desenvolvimento Fullstack, APIs REST, banco de dados, integração com Supabase e recursos mobile.
 
-📚 Aprendizados
+# 📚 Aprendizados
 
 Durante o desenvolvimento foram trabalhados conceitos de:
 
@@ -686,8 +703,11 @@ Git e GitHub
 Deploy na Vercel
 Controle de estoque
 Modelagem de banco de dados
-📌 Status do projeto
+
+# 📌 Status do projeto
+```text
 🟢 Em desenvolvimento
+```
 
 Funcionalidades principais:
 
@@ -705,22 +725,23 @@ Funcionalidades principais:
  Dashboard
  Impressão de etiquetas
  PWA
-📄 Licença
+ 
+# 📄 Licença
 
 Este projeto foi desenvolvido para fins acadêmicos e educacionais.
 
-
+```text
 ### ⚠️ Só altere estas partes antes de entregar
 
 No README, procure por:
 
-```text
 COLE_AQUI_A_URL_DO_SEU_GITHUB
-
+```
 e coloque seu repositório.
 
 E procure por:
-
+```text
 COLE_AQUI_A_URL_DO_BACKEND_NA_VERCEL
+```
 
 e coloque a URL que a Vercel fornecer.
