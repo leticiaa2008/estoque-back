@@ -115,7 +115,7 @@ O sistema utiliza o Supabase, que possui PostgreSQL como banco de dados.
 
 As principais entidades utilizadas pelo sistema são:
 
-# 👨‍👩‍👧 Famílias
+## 👨‍👩‍👧 Famílias
 
 Responsáveis por agrupar os produtos.
 
