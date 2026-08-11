@@ -69,7 +69,7 @@ Através do sistema, o funcionário pode:
 
 # 📁 Estrutura do projeto
 
-```test
+```text
 estoque/
 │
 ├── backend/
