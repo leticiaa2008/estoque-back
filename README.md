@@ -193,126 +193,124 @@ Representação:
 0042 → Produto
 ```
 Outro exemplo:
-
+```text
 003.002.0001
-
+```
 Representação:
-
+```text
 003 → Equipamentos
 002 → Periféricos
 0001 → Primeiro produto
-⚙️ Pré-requisitos
+```
+# ⚙️ Pré-requisitos
 
 Antes de executar o projeto, é necessário possuir instalado:
 
-Node.js
-npm
-Git
+-Node.js
+-npm
+-Git
 
 Recomenda-se utilizar uma versão atual do Node.js.
 
 Para verificar se o Node.js está instalado:
-
+```text
 node -v
+```
 
-Para verificar o npm:
+# 📥 Instalação
 
-npm -v
-📥 Instalação
-1. Clonar o repositório
+## 1. Clonar o repositório
+```text
 git clone COLE_AQUI_A_URL_DO_SEU_GITHUB
-
+```
 Depois entre na pasta:
-
+```text
 cd estoque
-📦 Instalar dependências
+```
+# 📦 Instalar dependências
 
 Entre na pasta do backend:
-
+```text
 cd backend
-
+```
 Execute:
-
+```text
 npm install
-
+```
 Esse comando instalará todas as dependências necessárias para executar a API.
 
-🔐 Configuração do Supabase
+# 🔐 Configuração do Supabase
 
 O projeto utiliza variáveis de ambiente para proteger as informações de conexão com o banco.
 
 Dentro da pasta backend, crie um arquivo:
-
+```text
 .env
-
+```
 Adicione:
-
+```text
 PORT=3000
 
 SUPABASE_URL=SUA_URL_DO_SUPABASE
 SUPABASE_KEY=SUA_CHAVE_DO_SUPABASE
-Exemplo
-PORT=3000
+```
 
-SUPABASE_URL=https://seu-projeto.supabase.co
-SUPABASE_KEY=sua-chave-do-supabase
-
-⚠️ Nunca publique o arquivo .env no GitHub.
-
-🔒 Arquivo .gitignore
+# 🔒 Arquivo .gitignore
 
 Crie um arquivo:
-
+```text
 .gitignore
-
+```
 E coloque:
-
+```text
 node_modules/
 .env
 .env.local
-
+```
 Dessa forma, as chaves do Supabase não serão enviadas para o repositório.
 
-🗄️ Configuração do banco
+# 🗄️ Configuração do banco
 
 No Supabase, acesse:
-
+```text
 SQL Editor
-
+```
 Execute o arquivo:
-
+```text
 sql/database.sql
-
+```
 Esse arquivo contém a estrutura necessária para o banco de dados.
 
 Depois disso, podem ser inseridos os dados iniciais de:
 
-Famílias
-Tipos
-Produtos
-▶️ Executando o Backend
+-Famílias
+-Tipos
+-Produtos
+
+#▶️ Executando o Backend
 
 Dentro da pasta:
-
+```text
 backend/
-
+```
 execute:
-
+```text
 npm start
-
+```
 Caso o projeto utilize o script de desenvolvimento:
-
+```text
 npm run dev
-
+```
 A API será iniciada em:
-
+```text
 http://localhost:3000
-🌐 API
+```
+# 🌐 API
 
 A API disponibiliza endpoints para comunicação entre o frontend e o banco de dados.
 
 Exemplos:
-
+```text
 GET    /api/produtos
 POST   /api/produtos
 
@@ -324,65 +322,68 @@ POST   /api/tipos
 
 GET    /api/movimentacoes
 POST   /api/movimentacoes
-
+```
 Os endpoints podem variar de acordo com a implementação final do backend.
 
-📱 Frontend
+# 📱 Frontend
 
 O frontend foi desenvolvido utilizando:
 
-HTML
-CSS
-Tailwind CSS
-JavaScript Vanilla
+-HTML
+-CSS
+-Tailwind CSS
+-JavaScript Vanilla
 
 Não são utilizados frameworks SPA como:
 
-React
-Vue
-Angular
-🔗 Configuração da URL do Backend
+-React
+-Vue
+-Angular
+
+# 🔗 Configuração da URL do Backend
 
 No frontend existe uma variável responsável por armazenar o endereço da API.
 
 Exemplo:
-
+```text
 const API_URL = "COLE_AQUI_A_URL_DA_VERCEL";
-
+```
 Durante o desenvolvimento local:
-
+```text
 const API_URL = "http://localhost:3000";
-
+```
 Depois do deploy:
-
+```text
 const API_URL = "COLE_AQUI_A_URL_DA_VERCEL";
-🚀 URL da Vercel
+```
+## 🚀 URL da Vercel
+```text
 COLE_AQUI_A_URL_DO_BACKEND_NA_VERCEL
-
+```
 Exemplo:
-
+```text
 https://seu-backend.vercel.app
-
+```
 ⚠️ Substitua pelo endereço real do seu backend depois do deploy.
 
-📱 Leitura de QR Code
+# 📱 Leitura de QR Code
 
 O sistema possui uma tela específica para leitura dos códigos:
-
+```text
 scanner.html
-
+```
 O funcionário pode acessar essa página pelo celular e utilizar a câmera do dispositivo para identificar o produto.
 
 Após a leitura, o sistema identifica o código:
-
+```text
 001.001.0001
-
+```
 E consulta automaticamente o produto correspondente na API.
 
-📥 Entrada de produtos
+# 📥 Entrada de produtos
 
 O fluxo de entrada funciona da seguinte maneira:
-
+```text
 Funcionário
      ↓
 Escaneia QR Code
@@ -400,10 +401,12 @@ Confirma entrada
 Estoque é atualizado
      ↓
 Movimentação é registrada
-📤 Saída de produtos
+```
+
+# 📤 Saída de produtos
 
 O fluxo de retirada funciona da seguinte maneira:
-
+```text
 Funcionário
      ↓
 Escaneia QR Code
@@ -425,51 +428,57 @@ Sistema verifica o saldo
 Estoque é atualizado
      ↓
 Movimentação é registrada
-⚠️ Validação de estoque
+```
+
+# ⚠️ Validação de estoque
 
 O sistema impede que seja retirada uma quantidade maior que o estoque disponível.
 
 Exemplo:
-
+```text
 Estoque atual: 10
 
 Quantidade solicitada: 15
-
+```
 Resultado:
-
+```text
 ❌ Retirada não permitida.
 
 Estoque insuficiente.
-🚨 Alerta de estoque baixo
+```
+# 🚨 Alerta de estoque baixo
 
 Cada produto possui um valor de estoque mínimo.
 
 Exemplo:
-
+```text
 Quantidade: 3
 Estoque mínimo: 5
-
+```
 O sistema identifica o produto como:
-
+```text
 ⚠️ ESTOQUE BAIXO
-
+```
 Caso a quantidade seja:
-
+```text
 0
-
+```
 O produto será identificado como:
-
+```text
 🔴 SEM ESTOQUE
-📊 Histórico
+```
+# 📊 Histórico
 
 Todas as movimentações realizadas são armazenadas no banco de dados.
 
 Exemplo:
-
+```text
 Data	Produto	Tipo	Quantidade	Responsável
 11/08/2026 09:30	Caixa de Arquivo 2024	Entrada	5	João
 11/08/2026 10:15	Papel A4	Saída	2	Maria
 11/08/2026 10:45	Mouse USB	Entrada	3	Carlos
+```
+
 🔎 Pesquisa
 
 O painel administrativo permite pesquisar produtos por:
