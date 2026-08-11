@@ -11,9 +11,6 @@ const app = express();
 
 app.use(cors());
 
-// Adicione esta linha no seu server.js logo abaixo dos middlewares
-app.use(express.static("public"));
-
 app.use(express.json());
 
 app.use(express.urlencoded({
