@@ -478,10 +478,11 @@ Todas as movimentações realizadas são armazenadas no banco de dados.
 
 Exemplo:
 ```text
-Data	Produto	Tipo	Quantidade	Responsável
-11/08/2026 09:30	Caixa de Arquivo 2024	Entrada	5	João
-11/08/2026 10:15	Papel A4	Saída	2	Maria
-11/08/2026 10:45	Mouse USB	Entrada	3	Carlos
+| Data             | Produto               | Tipo    | Quantidade | Responsável |
+| ---------------- | --------------------- | ------- | ---------: | ----------- |
+| 11/08/2026 09:30 | Caixa de Arquivo 2024 | Entrada |          5 | João        |
+| 11/08/2026 10:15 | Papel A4              | Saída   |          2 | Maria       |
+| 11/08/2026 10:45 | Mouse USB             | Entrada |          3 | Carlos      |
 ```
 
 🔎 Pesquisa
