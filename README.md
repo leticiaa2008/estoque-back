@@ -68,6 +68,8 @@ Através do sistema, o funcionário pode:
 ---
 
 # 📁 Estrutura do projeto
+
+```text
 estoque/
 │
 ├── backend/
@@ -162,7 +164,6 @@ Quantidade
 Responsável
 Motivo
 Data e hora
-
 🏷️ Sistema de códigos SKU
 
 Todos os produtos seguem obrigatoriamente o padrão:
