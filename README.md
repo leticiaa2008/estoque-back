@@ -287,7 +287,7 @@ Depois disso, podem ser inseridos os dados iniciais de:
 -Tipos
 -Produtos
 
-#▶️ Executando o Backend
+# ▶️ Executando o Backend
 
 Dentro da pasta:
 ```text
