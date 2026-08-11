@@ -330,14 +330,19 @@ Os endpoints podem variar de acordo com a implementação final do backend.
 O frontend foi desenvolvido utilizando:
 
 -HTML
+
 -CSS
+
 -Tailwind CSS
+
 -JavaScript Vanilla
 
 Não são utilizados frameworks SPA como:
 
 -React
+
 -Vue
+
 -Angular
 
 # 🔗 Configuração da URL do Backend
