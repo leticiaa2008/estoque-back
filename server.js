@@ -1,6 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-const path = require("path");
 require("dotenv").config();
 
 const app = express();
@@ -12,75 +11,94 @@ const app = express();
 
 app.use(cors());
 
+// Adicione esta linha no seu server.js logo abaixo dos middlewares
+app.use(express.static("public"));
+
 app.use(express.json());
 
 app.use(express.urlencoded({
     extended: true
 }));
 
-// Servir arquivos estáticos da pasta public (index.html, CSS, JS, etc.)
-app.use(express.static(path.join(__dirname, "public")));
-
 
 // ======================================================
-// ROTAS DA API
+// ROTAS
 // ======================================================
 
-const familiasRoutes = require("./routes/familias");
-const tiposRoutes = require("./routes/tipos");
-const produtosRoutes = require("./routes/produtos");
-const movimentacoesRoutes = require("./routes/movimentacoes");
+const familiasRoutes =
+    require("./routes/familias");
+
+const tiposRoutes =
+    require("./routes/tipos");
+
+const produtosRoutes =
+    require("./routes/produtos");
+
+const movimentacoesRoutes =
+    require("./routes/movimentacoes");
+
 
 app.use("/api/familias", familiasRoutes);
+
 app.use("/api/tipos", tiposRoutes);
+
 app.use("/api/produtos", produtosRoutes);
-app.use("/api/movimentacoes", movimentacoesRoutes);
+
+app.use(
+    "/api/movimentacoes",
+    movimentacoesRoutes
+);
 
 
 // ======================================================
-// ROTA DE TESTE DA API
+// ROTA PRINCIPAL
 // ======================================================
 
-app.get("/api", (req, res) => {
+app.get("/", (req, res) => {
+
     res.json({
         sucesso: true,
         sistema: "Controle de Estoque & Arquivo Morto",
-        mensagem: "API do Controle de Estoque funcionando!",
         status: "online",
-        versao: "1.0.0",
+        versao: "1.0.0"
+    });
+
+});
+
+
+// ======================================================
+// ROTA DE TESTE
+// ======================================================
+
+app.get("/api", (req, res) => {
+
+    res.json({
+        sucesso: true,
+        mensagem:
+            "API do Controle de Estoque funcionando!",
         rotas: {
             familias: "/api/familias",
             tipos: "/api/tipos",
             produtos: "/api/produtos",
-            movimentacoes: "/api/movimentacoes"
+            movimentacoes:
+                "/api/movimentacoes"
         }
     });
+
 });
 
 
 // ======================================================
-// ROTA PRINCIPAL / CATCH-ALL (ENTREGA O FRONTEND)
-// ======================================================
-
-app.get("*", (req, res, next) => {
-    // Se a requisição for para a API e não encontrou a rota, passa para o handler de 404
-    if (req.path.startsWith("/api")) {
-        return next();
-    }
-    // Caso contrário, carrega a tela do frontend (index.html)
-    res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-
-// ======================================================
-// TRATAMENTO DE ROTA INEXISTENTE DA API
+// TRATAMENTO DE ROTA INEXISTENTE
 // ======================================================
 
 app.use((req, res) => {
+
     res.status(404).json({
         sucesso: false,
         mensagem: "Rota não encontrada."
     });
+
 });
 
 
@@ -89,12 +107,14 @@ app.use((req, res) => {
 // ======================================================
 
 app.use((err, req, res, next) => {
+
     console.error(err);
 
     res.status(500).json({
         sucesso: false,
         mensagem: "Erro interno do servidor."
     });
+
 });
 
 
@@ -102,9 +122,12 @@ app.use((err, req, res, next) => {
 // SERVIDOR
 // ======================================================
 
-const PORT = process.env.PORT || 3000;
+const PORT =
+    process.env.PORT || 3000;
+
 
 app.listen(PORT, () => {
+
     console.log(`
 ========================================
    📦 CONTROLE DE ESTOQUE & ARQUIVO
@@ -129,4 +152,5 @@ app.listen(PORT, () => {
 
 ========================================
     `);
+
 });
