@@ -128,7 +128,7 @@ Materiais de Limpeza
 Materiais Escolares
 Patrimônio
 
-##📂 Tipos
+## 📂 Tipos
 
 Representam os subgrupos das famílias.
 
@@ -142,7 +142,7 @@ Computadores
 Periféricos
 Monitores
 
-##📦 Produtos
+## 📦 Produtos
 
 Armazena os produtos cadastrados no sistema.
 
@@ -157,7 +157,7 @@ Localização
 Quantidade
 Estoque mínimo
 
-##🔄 Movimentações
+## 🔄 Movimentações
 
 Registra todas as entradas e saídas realizadas.
 
@@ -170,7 +170,7 @@ Responsável
 Motivo
 Data e hora
 
-#🏷️ Sistema de códigos SKU
+# 🏷️ Sistema de códigos SKU
 
 Todos os produtos seguem obrigatoriamente o padrão:
 ```text
