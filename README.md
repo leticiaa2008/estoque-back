@@ -286,7 +286,9 @@ Esse arquivo contém a estrutura necessária para o banco de dados.
 Depois disso, podem ser inseridos os dados iniciais de:
 
 -Famílias
+
 -Tipos
+
 -Produtos
 
 # ▶️ Executando o Backend
