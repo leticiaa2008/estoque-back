@@ -207,7 +207,9 @@ Representação:
 Antes de executar o projeto, é necessário possuir instalado:
 
 -Node.js
+
 -npm
+
 -Git
 
 Recomenda-se utilizar uma versão atual do Node.js.
