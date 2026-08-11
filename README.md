@@ -127,7 +127,8 @@ Equipamentos
 Materiais de Limpeza
 Materiais Escolares
 Patrimônio
-📂 Tipos
+
+##📂 Tipos
 
 Representam os subgrupos das famílias.
 
@@ -140,7 +141,8 @@ Papéis
 Computadores
 Periféricos
 Monitores
-📦 Produtos
+
+##📦 Produtos
 
 Armazena os produtos cadastrados no sistema.
 
@@ -154,7 +156,8 @@ Tipo
 Localização
 Quantidade
 Estoque mínimo
-🔄 Movimentações
+
+##🔄 Movimentações
 
 Registra todas as entradas e saídas realizadas.
 
@@ -166,26 +169,29 @@ Quantidade
 Responsável
 Motivo
 Data e hora
-🏷️ Sistema de códigos SKU
+
+#🏷️ Sistema de códigos SKU
 
 Todos os produtos seguem obrigatoriamente o padrão:
-
+```text
 FFF.TTT.PPPP
-
+```
 Onde:
-
+```text
 FFF = Família
 TTT = Tipo
 PPPP = Número do produto
+```
 Exemplo
+```text
 001.001.0042
-
+```
 Representação:
-
+```text
 001 → Documentos
 001 → Caixas de Arquivo
 0042 → Produto
-
+```
 Outro exemplo:
 
 003.002.0001
