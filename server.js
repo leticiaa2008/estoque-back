@@ -1,37 +1,156 @@
 const express = require("express");
 const cors = require("cors");
-const path = require("path");
 require("dotenv").config();
 
 const app = express();
 
+
+// ======================================================
+// MIDDLEWARES
+// ======================================================
+
 app.use(cors());
+
+// Adicione esta linha no seu server.js logo abaixo dos middlewares
+app.use(express.static("public"));
+
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// 1. Servir arquivos estáticos do frontend (JS, CSS, Imagens)
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.urlencoded({
+    extended: true
+}));
 
-// 2. Rotas da API
-app.use("/api/familias", require("./routes/familias"));
-app.use("/api/tipos", require("./routes/tipos"));
-app.use("/api/produtos", require("./routes/produtos"));
-app.use("/api/movimentacoes", require("./routes/movimentacoes"));
 
-// 3. Entrega o frontend ao acessar qualquer rota do navegador
-app.get("*", (req, res, next) => {
-  if (req.path.startsWith("/api")) {
-    return next(); // Se for /api e não existir, passa para o 404 da API
-  }
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+// ======================================================
+// ROTAS
+// ======================================================
+
+const familiasRoutes =
+    require("./routes/familias");
+
+const tiposRoutes =
+    require("./routes/tipos");
+
+const produtosRoutes =
+    require("./routes/produtos");
+
+const movimentacoesRoutes =
+    require("./routes/movimentacoes");
+
+
+app.use("/api/familias", familiasRoutes);
+
+app.use("/api/tipos", tiposRoutes);
+
+app.use("/api/produtos", produtosRoutes);
+
+app.use(
+    "/api/movimentacoes",
+    movimentacoesRoutes
+);
+
+
+// ======================================================
+// ROTA PRINCIPAL
+// ======================================================
+
+app.get("/", (req, res) => {
+
+    res.json({
+        sucesso: true,
+        sistema: "Controle de Estoque & Arquivo Morto",
+        status: "online",
+        versao: "1.0.0"
+    });
+
 });
 
-// 4. Tratamento de erro 404 da API
+
+// ======================================================
+// ROTA DE TESTE
+// ======================================================
+
+app.get("/api", (req, res) => {
+
+    res.json({
+        sucesso: true,
+        mensagem:
+            "API do Controle de Estoque funcionando!",
+        rotas: {
+            familias: "/api/familias",
+            tipos: "/api/tipos",
+            produtos: "/api/produtos",
+            movimentacoes:
+                "/api/movimentacoes"
+        }
+    });
+
+});
+
+
+// ======================================================
+// TRATAMENTO DE ROTA INEXISTENTE
+// ======================================================
+
 app.use((req, res) => {
-  res.status(404).json({ sucesso: false, mensagem: "Rota da API não encontrada." });
+
+    res.status(404).json({
+        sucesso: false,
+        mensagem: "Rota não encontrada."
+    });
+
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
 
-module.exports = app;
+// ======================================================
+// TRATAMENTO GLOBAL DE ERROS
+// ======================================================
+
+app.use((err, req, res, next) => {
+
+    console.error(err);
+
+    res.status(500).json({
+        sucesso: false,
+        mensagem: "Erro interno do servidor."
+    });
+
+});
+
+
+// ======================================================
+// SERVIDOR
+// ======================================================
+
+const PORT =
+    process.env.PORT || 3000;
+
+
+app.listen(PORT, () => {
+
+    console.log(`
+========================================
+   📦 CONTROLE DE ESTOQUE & ARQUIVO
+========================================
+
+🚀 Servidor: http://localhost:${PORT}
+
+📡 API:
+   http://localhost:${PORT}/api
+
+📁 Famílias:
+   http://localhost:${PORT}/api/familias
+
+🏷️ Tipos:
+   http://localhost:${PORT}/api/tipos
+
+📦 Produtos:
+   http://localhost:${PORT}/api/produtos
+
+🔄 Movimentações:
+   http://localhost:${PORT}/api/movimentacoes
+
+========================================
+    `);
+
+});
