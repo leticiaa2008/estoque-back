@@ -1,14 +1,49 @@
 const supabase = require("../config/supabase");
 
+// ======================================================
+// HELPER: GERAR SKU AUTOMÁTICO
+// ======================================================
+async function gerarSKU(familia_id, tipo_id) {
+    try {
+        // Busca os códigos da família e do tipo para compor o SKU
+        const { data: familia } = await supabase
+            .from("familias")
+            .select("codigo")
+            .eq("id", familia_id)
+            .single();
+
+        const { data: tipo } = await supabase
+            .from("tipos")
+            .select("codigo")
+            .eq("id", tipo_id)
+            .single();
+
+        const prefixoFamilia = familia?.codigo ? String(familia.codigo).padStart(2, '0') : "00";
+        const prefixoTipo = tipo?.codigo ? String(tipo.codigo).padStart(2, '0') : "00";
+
+        // Conta quantos produtos existem nessa família/tipo para definir o sequencial
+        const { count } = await supabase
+            .from("produtos")
+            .select("id", { count: "exact", head: true })
+            .eq("familia_id", familia_id)
+            .eq("tipo_id", tipo_id);
+
+        const sequencial = String((count || 0) + 1).padStart(4, '0');
+
+        return `${prefixoFamilia}.${prefixoTipo}.${sequencial}`;
+    } catch (err) {
+        // Fallback genérico caso a busca dos códigos falhe
+        return `PRD-${Date.now().toString().slice(-6)}`;
+    }
+}
+
 
 // ======================================================
 // LISTAR PRODUTOS
 // ======================================================
 
 async function listarProdutos(req, res) {
-
     try {
-
         const {
             busca,
             familia_id,
@@ -34,52 +69,37 @@ async function listarProdutos(req, res) {
             .eq("ativo", true)
             .order("created_at", { ascending: false });
 
-
         if (familia_id) {
             query = query.eq("familia_id", familia_id);
         }
-
 
         if (tipo_id) {
             query = query.eq("tipo_id", tipo_id);
         }
 
-
         if (busca) {
-
             query = query.or(
                 `sku.ilike.%${busca}%,nome.ilike.%${busca}%,localizacao.ilike.%${busca}%`
             );
-
         }
-
 
         const { data, error } = await query;
 
-
         if (error) {
-
             return res.status(500).json({
                 sucesso: false,
                 mensagem: "Erro ao buscar produtos.",
                 erro: error.message
             });
-
         }
 
-
-        let produtos = data;
-
+        let produtos = data || [];
 
         if (estoque_baixo === "true") {
-
             produtos = produtos.filter(
-                produto =>
-                    produto.quantidade <= produto.estoque_minimo
+                produto => Number(produto.quantidade) <= Number(produto.estoque_minimo)
             );
-
         }
-
 
         res.json({
             sucesso: true,
@@ -87,17 +107,13 @@ async function listarProdutos(req, res) {
             dados: produtos
         });
 
-
     } catch (error) {
-
         res.status(500).json({
             sucesso: false,
             mensagem: "Erro interno do servidor.",
             erro: error.message
         });
-
     }
-
 }
 
 
@@ -106,11 +122,8 @@ async function listarProdutos(req, res) {
 // ======================================================
 
 async function buscarProdutoPorSKU(req, res) {
-
     try {
-
         const { sku } = req.params;
-
 
         const { data, error } = await supabase
             .from("produtos")
@@ -131,33 +144,25 @@ async function buscarProdutoPorSKU(req, res) {
             .eq("ativo", true)
             .single();
 
-
         if (error || !data) {
-
             return res.status(404).json({
                 sucesso: false,
                 mensagem: "Produto não encontrado."
             });
-
         }
-
 
         res.json({
             sucesso: true,
             dados: data
         });
 
-
     } catch (error) {
-
         res.status(500).json({
             sucesso: false,
             mensagem: "Erro interno do servidor.",
             erro: error.message
         });
-
     }
-
 }
 
 
@@ -166,12 +171,11 @@ async function buscarProdutoPorSKU(req, res) {
 // ======================================================
 
 async function criarProduto(req, res) {
-
     try {
-
         const {
             familia_id,
             tipo_id,
+            sku: skuEnviado,
             nome,
             descricao,
             localizacao,
@@ -179,22 +183,18 @@ async function criarProduto(req, res) {
             estoque_minimo
         } = req.body;
 
-
-        if (
-            !familia_id ||
-            !tipo_id ||
-            !nome ||
-            !localizacao
-        ) {
-
+        // Validação de campos obrigatórios
+        if (!familia_id || !tipo_id || !nome || !localizacao) {
             return res.status(400).json({
                 sucesso: false,
-                mensagem:
-                    "Família, tipo, nome e localização são obrigatórios."
+                mensagem: "Os campos familia_id, tipo_id, nome e localizacao são obrigatórios."
             });
-
         }
 
+        // Se o SKU não for enviado manualmente, gera um automaticamente
+        const skuFinal = skuEnviado && skuEnviado.trim() !== ""
+            ? skuEnviado.trim()
+            : await gerarSKU(familia_id, tipo_id);
 
         const { data, error } = await supabase
             .from("produtos")
@@ -202,11 +202,13 @@ async function criarProduto(req, res) {
                 {
                     familia_id,
                     tipo_id,
+                    sku: skuFinal,
                     nome,
-                    descricao,
+                    descricao: descricao || "",
                     localizacao,
-                    quantidade: quantidade || 0,
-                    estoque_minimo: estoque_minimo || 0
+                    quantidade: quantidade ? Number(quantidade) : 0,
+                    estoque_minimo: estoque_minimo ? Number(estoque_minimo) : 0,
+                    ativo: true
                 }
             ])
             .select(`
@@ -224,17 +226,13 @@ async function criarProduto(req, res) {
             `)
             .single();
 
-
         if (error) {
-
             return res.status(400).json({
                 sucesso: false,
-                mensagem: "Erro ao cadastrar produto.",
+                mensagem: "Erro ao cadastrar produto no banco de dados.",
                 erro: error.message
             });
-
         }
-
 
         res.status(201).json({
             sucesso: true,
@@ -242,17 +240,13 @@ async function criarProduto(req, res) {
             dados: data
         });
 
-
     } catch (error) {
-
         res.status(500).json({
             sucesso: false,
             mensagem: "Erro interno do servidor.",
             erro: error.message
         });
-
     }
-
 }
 
 
@@ -261,9 +255,7 @@ async function criarProduto(req, res) {
 // ======================================================
 
 async function atualizarProduto(req, res) {
-
     try {
-
         const { id } = req.params;
 
         const {
@@ -274,31 +266,27 @@ async function atualizarProduto(req, res) {
             ativo
         } = req.body;
 
+        const updateData = {};
+        if (nome !== undefined) updateData.nome = nome;
+        if (descricao !== undefined) updateData.descricao = descricao;
+        if (localizacao !== undefined) updateData.localizacao = localizacao;
+        if (estoque_minimo !== undefined) updateData.estoque_minimo = Number(estoque_minimo);
+        if (ativo !== undefined) updateData.ativo = ativo;
 
         const { data, error } = await supabase
             .from("produtos")
-            .update({
-                nome,
-                descricao,
-                localizacao,
-                estoque_minimo,
-                ativo
-            })
+            .update(updateData)
             .eq("id", id)
             .select()
             .single();
 
-
         if (error) {
-
             return res.status(400).json({
                 sucesso: false,
                 mensagem: "Erro ao atualizar produto.",
                 erro: error.message
             });
-
         }
-
 
         res.json({
             sucesso: true,
@@ -306,17 +294,13 @@ async function atualizarProduto(req, res) {
             dados: data
         });
 
-
     } catch (error) {
-
         res.status(500).json({
             sucesso: false,
             mensagem: "Erro interno do servidor.",
             erro: error.message
         });
-
     }
-
 }
 
 
@@ -325,11 +309,8 @@ async function atualizarProduto(req, res) {
 // ======================================================
 
 async function excluirProduto(req, res) {
-
     try {
-
         const { id } = req.params;
-
 
         const { data, error } = await supabase
             .from("produtos")
@@ -340,17 +321,13 @@ async function excluirProduto(req, res) {
             .select()
             .single();
 
-
         if (error) {
-
             return res.status(400).json({
                 sucesso: false,
                 mensagem: "Erro ao desativar produto.",
                 erro: error.message
             });
-
         }
-
 
         res.json({
             sucesso: true,
@@ -358,17 +335,13 @@ async function excluirProduto(req, res) {
             dados: data
         });
 
-
     } catch (error) {
-
         res.status(500).json({
             sucesso: false,
             mensagem: "Erro interno do servidor.",
             erro: error.message
         });
-
     }
-
 }
 
 
